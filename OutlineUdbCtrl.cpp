@@ -54,7 +54,7 @@ static void _expand( QTreeView* tv, OutlineUdbMdl* mdl, const QModelIndex& index
 		return;
 
 	if( expand )
-		// Öffne von oben nach unten
+		// Ã–ffne von oben nach unten
 		tv->setExpanded( index, true );
 	for( int i = 0; i < count; i++ )
 		_expand( tv, mdl, mdl->index( i, 0, index ), expand );
@@ -539,7 +539,7 @@ bool OutlineUdbCtrl::pasteFromClipBoard(bool special)
 			return true;
 		}else if( mime->hasUrls() && !ro )
         {
-            // Fix Google Chrome: dieser gibt bei "text/uri-list" die URL in der Form <url>%0A<url> zurück
+            // Fix Google Chrome: dieser gibt bei "text/uri-list" die URL in der Form <url>%0A<url> zurÃ¼ck
             QList<QUrl> l = mime->urls();
             if( !l.isEmpty() &&
                     ( l.first().scheme().startsWith( QLatin1String( "http" ) ) ||
@@ -686,6 +686,15 @@ void OutlineUdbCtrl::onEditUrl()
         }
     }else
         insertUrl();
+}
+
+void OutlineUdbCtrl::onOpenUrl()
+{
+	const QUrl url = d_deleg->getSelUrl();
+	const QByteArray link = d_deleg->getSelLink();
+	ENABLED_IF( url.isValid() || !link.isEmpty() );
+
+	d_deleg->activateAnchor();
 }
 
 void OutlineUdbCtrl::onFollowAlias()
@@ -849,7 +858,7 @@ bool OutlineUdbCtrl::LinkRenderer::renderLink(TextCursor & cur, const QByteArray
 	if( type == OutlineItem::TID )
 	{
 		const Udb::Obj alias = obj.getAlias();
-		if( !alias.isNull() ) // Löse Aliasse auf
+		if( !alias.isNull() ) // LÃ¶se Aliasse auf
 			obj = alias;
 	}
 	QString nr;
@@ -905,7 +914,7 @@ bool OutlineUdbCtrl::LinkRenderer::renderLink(TextCursor & cur, const QByteArray
 	if( link.d_showName )
 		name = obj.getText();
 
-	// Zur Verfügung: id, name, itemName, nr, icon
+	// Zur VerfÃ¼gung: id, name, itemName, nr, icon
 	QString text;
 	if( false ) // name.isEmpty() && itemName.isEmpty() && id.isEmpty() )
 		id = nr;
