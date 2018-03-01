@@ -92,6 +92,7 @@ namespace Oln
 		void onInsertToc();
         //void onPasteDocAlias();
         void onEditUrl();
+	void onOpenUrl();
         void onFollowAlias();
 	protected slots:
 		void onAddNextImp();
