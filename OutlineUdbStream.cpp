@@ -1,11 +1,11 @@
 /*
-* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.info>
+* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.ch>
 *
 * This file is part of the CrossLine outliner Oln2 library.
 *
 * The following is the license that applies to this copy of the
 * library. For a license to use the library under conditions
-* other than those described here, please email to me@rochus-keller.info.
+* other than those described here, please email to me@rochus-keller.ch.
 *
 * GNU General Public License Usage
 * This file may be used under the terms of the GNU General Public
@@ -26,7 +26,7 @@
 using namespace Oln;
 using namespace Stream;
 
-const quint32 OutlineUdbStream::s_magic = 1489782925; // Zufallszahl zur Unterstützung der Formatwiedererkennung
+const quint32 OutlineUdbStream::s_magic = 1489782925; // Zufallszahl zur UnterstÃ¼tzung der Formatwiedererkennung
 
 void OutlineUdbStream::writeOutline(DataWriter & out, const Udb::Obj &outline, bool wh)
 {
@@ -236,7 +236,7 @@ bool OutlineUdbStream::remapRefs(const Udb::Obj &home, const QUuid& dbid, const 
 						{
 							Link l;
 							if( !l.readFrom( in.getValue().getArr() ) )
-								return false; // ungültiges Link-Format
+								return false; // ungÃ¼ltiges Link-Format
 							if( l.d_db.isNull() || l.d_db == dbid )
 							{
 								if( l.d_db.isNull() )
@@ -262,7 +262,7 @@ bool OutlineUdbStream::remapRefs(const Udb::Obj &home, const QUuid& dbid, const 
 		}else if( v.isHtml() )
 		{
 			// TODO: was machen wir damit?
-			// hier müssten alle <a> mit Styles::s_linkSchema auf intern umgebogen werden, wenn in gleicher DB.
+			// hier mÃ¼ssten alle <a> mit Styles::s_linkSchema auf intern umgebogen werden, wenn in gleicher DB.
 			// analog zu oben
 		}
 	}
@@ -317,14 +317,14 @@ QUuid OutlineUdbStream::readOlnFrame( DataReader & in, Udb::Obj parent, const Ud
 					item.setValue( OutlineItem::AttrIsExpanded, in.getValue() );
 				else if( name.equals( "ali" ) )
 					item.setValue( OutlineItem::AttrAlias, in.getValue() );
-					// Hier wird der Wert einfach mal übernommen; die Aufloesung erfolgt in weiterem Schritt
+					// Hier wird der Wert einfach mal Ã¼bernommen; die Aufloesung erfolgt in weiterem Schritt
 				else
 					qWarning() << "OutlineUdbStream::readObj unexpected slot " << name.toString();
 			}
 			break;
 		case DataReader::BeginFrame:
 			if( !in.getName().getTag().equals( "oln" ) )
-				throw Exception( "unexpected child frame " + in.getName().toString().toAscii() );
+                throw Exception( "unexpected child frame " + in.getName().toString().toUtf8() );
 			else
 				readOlnFrame( in, item, home, Udb::Obj(), oidMap );
 			break;
@@ -342,8 +342,8 @@ QUuid OutlineUdbStream::readOlnFrame( DataReader & in, Udb::Obj parent, const Ud
 						item.clearValue( OutlineItem::AttrAlias );
 				}else if( v.isOid() )
 					item.setValue( OutlineItem::AttrAlias, DataCell().setUInt64( v.getOid() ) );
-					// Für spätere Unterscheidbarkeit von vorigem Fall, wo Uuid aufgelöst werden konnte, und damit
-					// die Zahl bei Nicht-Auflösung unschädlich ist
+					// FÃ¼r spÃ¤tere Unterscheidbarkeit von vorigem Fall, wo Uuid aufgelÃ¶st werden konnte, und damit
+					// die Zahl bei Nicht-AuflÃ¶sung unschÃ¤dlich ist
 				else
 					item.clearValue( OutlineItem::AttrAlias );
 				OutlineItem::updateBackRefs(item);

@@ -1,11 +1,11 @@
 /*
-* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.info>
+* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.ch>
 *
 * This file is part of the CrossLine outliner Oln2 library.
 *
 * The following is the license that applies to this copy of the
 * library. For a license to use the library under conditions
-* other than those described here, please email to me@rochus-keller.info.
+* other than those described here, please email to me@rochus-keller.ch.
 *
 * GNU General Public License Usage
 * This file may be used under the terms of the GNU General Public
@@ -224,7 +224,7 @@ void OutlineItem::updateBackRefs(const OutlineItem & item, const DataCell & newT
 		{
 			if( p.at(i).id == Txt::Html_a && p.at(i).charFormat.anchorHref().startsWith(QLatin1String(
 				Txt::Styles::s_linkSchema ) ) &&
-				l.readFrom( QByteArray::fromBase64( p.at(i).charFormat.anchorHref().mid( slen ).toAscii() ) ) &&
+                l.readFrom( QByteArray::fromBase64( p.at(i).charFormat.anchorHref().mid( slen ).toUtf8() ) ) &&
 							l.d_db == dbid )
 				refs[l.d_oid]--;
 		}
@@ -245,7 +245,7 @@ void OutlineItem::updateBackRefs(const OutlineItem & item, const DataCell & newT
 		{
 			if( p.at(i).id == Txt::Html_a && p.at(i).charFormat.anchorHref().startsWith(QLatin1String(
 				Txt::Styles::s_linkSchema ) ) &&
-				l.readFrom( QByteArray::fromBase64( p.at(i).charFormat.anchorHref().mid( slen ).toAscii() ) ) &&
+                l.readFrom( QByteArray::fromBase64( p.at(i).charFormat.anchorHref().mid( slen ).toUtf8() ) ) &&
 							l.d_db == dbid )
 				refs[l.d_oid]++;
 		}
@@ -299,7 +299,7 @@ void OutlineItem::updateBackRefs(const OutlineItem &item)
 		{
 			if( p.at(i).id == Txt::Html_a && p.at(i).charFormat.anchorHref().startsWith(QLatin1String(
 				Txt::Styles::s_linkSchema ) ) &&
-				l.readFrom( QByteArray::fromBase64( p.at(i).charFormat.anchorHref().mid( slen ).toAscii() ) ) &&
+                l.readFrom( QByteArray::fromBase64( p.at(i).charFormat.anchorHref().mid( slen ).toUtf8() ) ) &&
 							l.d_db == dbid )
 				refs[l.d_oid]++;
 		}
@@ -366,7 +366,7 @@ QList<OutlineItem> OutlineItem::getReferences(const Udb::Obj &obj)
 
 void OutlineItem::erase(Udb::Obj item)
 {
-	// NOTE: das nützt nichts, da ja irgendwer ganze Objektbäume löschen kann, wovon wir hier nichts erfahren.
+	// NOTE: das nÃ¼tzt nichts, da ja irgendwer ganze ObjektbÃ¤ume lÃ¶schen kann, wovon wir hier nichts erfahren.
 	// Besser mit itemErasedCallback den Index aktualisieren
 	item.erase();
 }

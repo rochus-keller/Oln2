@@ -2,13 +2,13 @@
 #define __Oln_OutlineUdbMdl__
 
 /*
-* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.info>
+* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.ch>
 *
 * This file is part of the CrossLine outliner Oln2 library.
 *
 * The following is the license that applies to this copy of the
 * library. For a license to use the library under conditions
-* other than those described here, please email to me@rochus-keller.info.
+* other than those described here, please email to me@rochus-keller.ch.
 *
 * GNU General Public License Usage
 * This file may be used under the terms of the GNU General Public
@@ -40,12 +40,12 @@ namespace Oln
 		void fetchAll();
 		Udb::Obj getItem( const QModelIndex & ) const;
         Udb::Obj getItem( int row, const QModelIndex & parent ) const;
-		// QModelIndex findIndex( quint64 oid ); // lädt nach
+		// QModelIndex findIndex( quint64 oid ); // lÃ¤dt nach
         QModelIndex getIndex( quint64, bool fetch = false ) const; // override
 		QModelIndex findInLevel( const QModelIndex & parent, quint64 oid ) const;
 		QList<Udb::Obj> loadFromText( const QString& html, int row, const QModelIndex & parent ); // neue Items oder empty
 
-        Udb::Obj loadFromHtml( const QString& html, // TODO: hier QByteArray übergeben und zuerst Zeichenkodierung feststellen!
+        Udb::Obj loadFromHtml( const QString& html, // TODO: hier QByteArray Ã¼bergeben und zuerst Zeichenkodierung feststellen!
                                int row, const QModelIndex & parent, bool rooted = true ); // neues Item oder null
 		bool moveOrLinkRefs( const QByteArray& bml, const Udb::Obj& parent, const Udb::Obj& before, bool link, bool docLink = false );
 		

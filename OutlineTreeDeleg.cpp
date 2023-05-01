@@ -65,7 +65,7 @@ OutlineTreeDeleg::OutlineTreeDeleg( QAbstractItemView* p, Text::ParagraphCtrl* c
 	d_ctrl = ctrl;
 	d_ctrl->setWnd( p->viewport() );
 	d_ctrl->view()->addObserver( this );
-	p->installEventFilter( this ); // wegen Focus und Resize während Edit
+	p->installEventFilter( this ); // wegen Focus und Resize wÃ¤hrend Edit
 	// temp hat eigenes Format, damit keine Interferenz mit Editor
 	d_temp = new ParagraphView( new ParagraphMdl() );
 }
@@ -86,7 +86,7 @@ void OutlineTreeDeleg::handle( Root::Message& msg )
 			{
 				QAbstractItemModel* mdl = const_cast<QAbstractItemModel*>( d_edit.model() );
 				mdl->setData( d_edit, 0, Qt::SizeHintRole );
-				// Dirty Trick um dataChanged auszulösen und Kosten für doItemsLayout zu sparen.
+				// Dirty Trick um dataChanged auszulÃ¶sen und Kosten fÃ¼r doItemsLayout zu sparen.
 			}
 			break;
 		}
@@ -105,8 +105,8 @@ QWidget * OutlineTreeDeleg::createEditor ( QWidget * parent,
 
 	d_edit = index;
 	readData();
-	// Bei Indent wird diese Funktion irrtümlich von Qt ohne gültige Breite aufgerufen.
-	d_ctrl->view()->setTopLeft( option.rect.topLeft() + QPoint( s_leftOff, 0 ) ); // das muss hier stehen, damit erster Click richtig übersetzt
+	// Bei Indent wird diese Funktion irrtÃ¼mlich von Qt ohne gÃ¼ltige Breite aufgerufen.
+	d_ctrl->view()->setTopLeft( option.rect.topLeft() + QPoint( s_leftOff, 0 ) ); // das muss hier stehen, damit erster Click richtig Ã¼bersetzt
 	if( option.rect.isValid() && option.rect.width() != d_ctrl->view()->getViewRect().width() )
 		d_ctrl->view()->setWidth( option.rect.width() - s_leftOff - s_rightOff );
 	d_ctrl->focusInEvent( 0, 0 );
@@ -186,8 +186,8 @@ void OutlineTreeDeleg::writeData() const
 QSize OutlineTreeDeleg::sizeHint( const QStyleOptionViewItem & option, 
 								   const QModelIndex & index ) const
 {
-	// NOTE: habe QTreeView ein wenig geändert, so dass with() nun immer korrekt
-	// übergeben wird und wir hier height berechnen können. WidthRole überflüssig.
+	// NOTE: habe QTreeView ein wenig geÃ¤ndert, so dass with() nun immer korrekt
+	// Ã¼bergeben wird und wir hier height berechnen kÃ¶nnen. WidthRole Ã¼berflÃ¼ssig.
 
 	if( d_edit == index )
 	{

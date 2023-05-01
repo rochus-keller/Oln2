@@ -1,11 +1,11 @@
 /*
-* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.info>
+* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.ch>
 *
 * This file is part of the CrossLine outliner Oln2 library.
 *
 * The following is the license that applies to this copy of the
 * library. For a license to use the library under conditions
-* other than those described here, please email to me@rochus-keller.info.
+* other than those described here, please email to me@rochus-keller.ch.
 *
 * GNU General Public License Usage
 * This file may be used under the terms of the GNU General Public
@@ -43,7 +43,7 @@ void OutlineToHtml::writeTo( QTextStream& out, const Udb::Obj& oln, QString titl
 		out << "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">" << endl;
 		out << "<html><META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" << endl;
 		if( title.isEmpty() )
-			title = Qt::escape( oln.getString( OutlineItem::AttrText ) );
+            title = oln.getString( OutlineItem::AttrText ).toHtmlEscaped();
 		out << QString( "<head><title>%1</title>" ).arg( title ) << endl;
 		writeCss(out);
 		out << "</head><body>" << endl;
@@ -134,7 +134,7 @@ void OutlineToHtml::writeFragment( QTextStream& out, const Stream::DataCell& txt
 	html.setNoFileDirs(d_noFileDirs);
 	if( !id.isEmpty() )
 	{
-		id = QString("<span class=\"ident\">%1</span>").arg( Qt::escape(id) );
+        id = QString("<span class=\"ident\">%1</span>").arg( id.toHtmlEscaped() );
 	}
 	if( alias != 0 )
 		out << QString("<a href=\"#%1\">%2</a>").arg( alias ).arg( pfeil ) << id << html.toHtml( true );
@@ -151,7 +151,7 @@ void OutlineToHtml::writeParagraph( QTextStream& out, const Stream::DataCell& tx
 	else
 		tag = "div";
 	// NOTE: hatte zuerst <p> statt <div> verwendet; sieht genau gleichaus, ausser dass in <p> keine Tabellen
-	// oder Listen eingebettet werden können und diese dann ganz links aliniert sind.
+	// oder Listen eingebettet werden kÃ¶nnen und diese dann ganz links aliniert sind.
 	out << QString( "<%1 style=\"margin-left:%2px\">" ).arg(tag).arg( 9 + level * 18 );
 
 	out << "<span class=\"label\">";

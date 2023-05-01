@@ -284,7 +284,7 @@ bool OutlineTreeModel::move( QModelIndex source, QModelIndex toParent, int row )
 	QModelIndex pidx = parent( source );
 	if( !from->getOwner()->canRemoveChild( source.row() ) )
 		return false;
-	beginRemoveRows( pidx, source.row(), source.row() ); // RISK: ist das zulässig?
+	beginRemoveRows( pidx, source.row(), source.row() ); // RISK: ist das zulÃ¤ssig?
 	beginInsertRows( toParent, row, row );
 	from->moveTo( paritem, row );
 	endInsertRows();
@@ -358,7 +358,7 @@ bool OutlineTreeModel::dropOutlineItem(const QMimeData *data,
 	QByteArray ba = data->data( "application/outlineitems" );
 	Root::ValueReader vr( (Root::UInt8*)ba.data(), ba.size() );
 
-	// RISK: das ist gefährlich. Wir schreiben direkt in QByteArray rein!
+	// RISK: das ist gefÃ¤hrlich. Wir schreiben direkt in QByteArray rein!
 	if( !Root::StreamEnvelope::unpack( vr, d_mdl.getAtoms() ) )
 		return false;
 
@@ -377,18 +377,18 @@ bool OutlineTreeModel::dropOutlineItem(const QMimeData *data,
 			parent = parent.parent();
 			paritem = paritem->getOwner();
 		}else
-			// Item soll am Schluss eingefügt werden
+			// Item soll am Schluss eingefÃ¼gt werden
 			row = paritem->getCount();
 	}//else
-		// Parent valid und gültige row fügt item in Parent ein
+		// Parent valid und gÃ¼ltige row fÃ¼gt item in Parent ein
 
 	Root::Ref<OutlineItem> item;
 	Root::Ref<OutlineItem> first;
 	while( vr.hasMore() )
 	{
 		// Gehe durch den Stream und lese alle Outlines.
-		// Schliesslich enthält first das erste gelesene Item und
-		// alle weiteren aller Outlines sind daran als next angehängt.
+		// Schliesslich enthÃ¤lt first das erste gelesene Item und
+		// alle weiteren aller Outlines sind daran als next angehÃ¤ngt.
 		if( !d_mdl.loadOutline( item, vr, d_mdl.getAtoms() ) )
 			return false;
 		if( first.isNull() )
@@ -474,7 +474,7 @@ bool OutlineTreeModel::dropText(const QMimeData *data,
 		}else if( tabs > level )
 		{
 			pidx = curidx;
-			level++; // Ignoriere ungültige Indents
+			level++; // Ignoriere ungÃ¼ltige Indents
 		}else if( tabs < level )
 		{
 			while( level > tabs && pidx.isValid() )

@@ -1,11 +1,11 @@
 /*
-* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.info>
+* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.ch>
 *
 * This file is part of the CrossLine outliner Oln2 library.
 *
 * The following is the license that applies to this copy of the
 * library. For a license to use the library under conditions
-* other than those described here, please email to me@rochus-keller.info.
+* other than those described here, please email to me@rochus-keller.ch.
 *
 * GNU General Public License Usage
 * This file may be used under the terms of the GNU General Public
@@ -22,8 +22,8 @@
 #include "OutlineItem.h"
 #include "EditUrlDlg.h"
 #include <Udb/Database.h>
-#include <Gui2/UiFunction.h>
-#include <Gui2/AutoShortcut.h>
+#include <GuiTools/UiFunction.h>
+#include <GuiTools/AutoShortcut.h>
 #include <Txt/TextOutStream.h>
 #include <Txt/TextCursor.h>
 #include <QApplication>
@@ -37,6 +37,8 @@
 #include <QFileInfo>
 #include <cassert>
 #include <QtDebug>
+#include <QMimeData>
+#include <QUrlQuery>
 using namespace Oln;
 using namespace Stream;
 using namespace Txt;
@@ -73,7 +75,7 @@ OutlineUdbCtrl::OutlineUdbCtrl( OutlineTree* p, Udb::Transaction* txn ):
 	// Nein connect( p, SIGNAL( returnPressed() ), this, SLOT( onAddNextImp() ) );
 
     connect( d_deleg->getEditCtrl(), SIGNAL(anchorActivated(QByteArray,bool)),
-             this, SLOT( followLink(QByteArray,bool) ) );
+			 this, SLOT( followLink(QByteArray,bool) ) );
 
 }
 
@@ -85,7 +87,7 @@ OutlineUdbCtrl* OutlineUdbCtrl::create( QWidget* p, Udb::Transaction* txn )
     return ctrl;
 }
 
-void OutlineUdbCtrl::addItemCommands(Gui2::AutoMenu * sub)
+void OutlineUdbCtrl::addItemCommands(Gui::AutoMenu * sub)
 {
     sub->addCommand( tr("Add next"),  this, SLOT(onAddNext()), tr("Return"), true );
 	sub->addCommand( tr("Add right"),  this, SLOT(onAddRight()), tr("CTRL+R"), true );
@@ -96,16 +98,16 @@ void OutlineUdbCtrl::addItemCommands(Gui2::AutoMenu * sub)
 	sub->addCommand( tr("Set Readonly"),  this, SLOT(onReadOnly()) )->setCheckable(true);
 	sub->addCommand( tr("Properties..."),  this, SLOT(onEditProps()), tr("ALT+Return"), true );
 	sub->addCommand( tr("Indent"), this, SLOT(onIndent()), tr("TAB"), true );
-	new Gui2::AutoShortcut( tr("SHIFT+RIGHT"), getTree(), this, SLOT(onIndent()) );
+    new Gui::AutoShortcut( tr("SHIFT+RIGHT"), getTree(), this, SLOT(onIndent()) );
 	sub->addCommand( tr("Unindent"),  this, SLOT(onUnindent()), tr("SHIFT+TAB"), true );
-	new Gui2::AutoShortcut( tr("SHIFT+LEFT"), getTree(), this, SLOT(onUnindent()) );
+    new Gui::AutoShortcut( tr("SHIFT+LEFT"), getTree(), this, SLOT(onUnindent()) );
 	sub->addCommand( tr("Move up"),  this, SLOT(onMoveUp()), tr("SHIFT+UP"), true );
     sub->addCommand( tr("Move down"),  this, SLOT(onMoveDown()), tr("SHIFT+DOWN"), true );
     sub->addSeparator();
     sub->addCommand( tr("Follow Alias"), this, SLOT( onFollowAlias()) );
 }
 
-void OutlineUdbCtrl::addOutlineCommands(Gui2::AutoMenu * pop)
+void OutlineUdbCtrl::addOutlineCommands(Gui::AutoMenu * pop)
 {
     pop->addCommand( tr("Cut"), this, SLOT(onCut()), tr("CTRL+X"), true );
 	pop->addCommand( tr("Copy"),  this, SLOT(onCopy()), tr("CTRL+C"), true );
@@ -116,7 +118,7 @@ void OutlineUdbCtrl::addOutlineCommands(Gui2::AutoMenu * pop)
 	pop->addCommand( tr("Expand all"),  this, SLOT(onExpandAll()), tr("CTRL+SHIFT+A"), true  );
 	pop->addCommand( tr("Expand selected"),  this, SLOT(onExpandSubs()) );
 	pop->addCommand( tr("Collapse all"),  this, SLOT(onCollapseAll()) );
-    new Gui2::AutoShortcut( tr("CTRL+S"), getTree(), this, SLOT(onSave()) );
+    new Gui::AutoShortcut( tr("CTRL+S"), getTree(), this, SLOT(onSave()) );
 }
 
 
@@ -552,9 +554,10 @@ bool OutlineUdbCtrl::pasteFromClipBoard(bool special)
                     QString text;
 					if( l[i].scheme() == Udb::Obj::s_xoidScheme )
                     {
-                        l[i].setQueryDelimiters( '=', ';' );
-                        text = l[i].queryItemValue( tr("txt") );
-                        QString str = l[i].queryItemValue( tr("id") );
+                        QUrlQuery q(l[i]);
+                        q.setQueryDelimiters( '=', ';' );
+                        text = q.queryItemValue( tr("txt") );
+                        QString str = q.queryItemValue( tr("id") );
                         if( !str.isEmpty() )
                         {
                             if( !text.isEmpty() )
@@ -562,7 +565,8 @@ bool OutlineUdbCtrl::pasteFromClipBoard(bool special)
                             else
                                 text = str;
                         }
-                        l[i].setQueryItems(QList<QPair<QString, QString> >());
+                        q.setQueryItems(QList<QPair<QString, QString> >());
+                        l[i].setQuery(q);
                     }
                     d_deleg->getEditor()->getCursor().insertUrl( l[i], text );
                 }
@@ -641,7 +645,7 @@ void OutlineUdbCtrl::onInsertToc()
 	ENABLED_IF( getTree()->selectionModel()->selectedRows().size() == 1 && !toc.isNull() && !d_deleg->isReadOnly() );
 
 	bool ok;
-	int level = QInputDialog::getInteger( getTree(), tr("Create TOC"), tr("Select number of levels (0..all):"),
+    int level = QInputDialog::getInt( getTree(), tr("Create TOC"), tr("Select number of levels (0..all):"),
 										  0, 0, 999, 1, &ok );
 	if( !ok )
 		return;
@@ -685,11 +689,12 @@ void OutlineUdbCtrl::onEditUrl()
                 s_objectDefault = l;
         }
     }else
-        insertUrl();
+		insertUrl();
 }
 
 void OutlineUdbCtrl::onOpenUrl()
 {
+	// redundant zu OutlineCtrl::onFollowAnchor
 	const QUrl url = d_deleg->getSelUrl();
 	const QByteArray link = d_deleg->getSelLink();
 	ENABLED_IF( url.isValid() || !link.isEmpty() );

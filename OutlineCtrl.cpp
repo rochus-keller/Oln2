@@ -1,11 +1,11 @@
 /*
-* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.info>
+* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.ch>
 *
 * This file is part of the CrossLine outliner Oln2 library.
 *
 * The following is the license that applies to this copy of the
 * library. For a license to use the library under conditions
-* other than those described here, please email to me@rochus-keller.info.
+* other than those described here, please email to me@rochus-keller.ch.
 *
 * GNU General Public License Usage
 * This file may be used under the terms of the GNU General Public
@@ -21,7 +21,7 @@
 #include "OutlineMdl.h"
 #include "OutlineItem.h"
 #include "EditUrlDlg.h"
-#include <Gui2/UiFunction.h>
+#include <GuiTools/UiFunction.h>
 #include <Txt/TextOutStream.h>
 #include <Txt/TextCursor.h>
 #include <Txt/TextOutHtml.h>
@@ -35,11 +35,12 @@
 #include <QFileInfo>
 #include <QTextCodec>
 #include <cassert>
+#include <QMimeData>
 using namespace Oln;
 using namespace Stream;
 using namespace Txt;
 
-// TODO: Funktionen aus OutlineUdbCtrl übernehmen und ohne Udb-Abhängigkeit via AbstractItemModel realisieren
+// TODO: Funktionen aus OutlineUdbCtrl Ã¼bernehmen und ohne Udb-AbhÃ¤ngigkeit via AbstractItemModel realisieren
 
 OutlineCtrl::OutlineCtrl( OutlineTree* p, LinkRendererInterface * lr ):Controller( p )
 {
@@ -175,9 +176,9 @@ bool OutlineCtrl::copyToClipBoard( bool cut )
 
 void OutlineCtrl::nextOrSub( QModelIndex& parent, int& newRow )
 {
-    // Setze parent und row so, dass abhängig vom gerade editierten oder currentIndex() das neue
-    // Item entweder als nächstes oder als erstes untergeordnetes eingefügt wird.
-	QModelIndex pred = d_deleg->getEditIndex(); // Vorgänger oder Parent des neu eingefügten
+    // Setze parent und row so, dass abhÃ¤ngig vom gerade editierten oder currentIndex() das neue
+    // Item entweder als nÃ¤chstes oder als erstes untergeordnetes eingefÃ¼gt wird.
+	QModelIndex pred = d_deleg->getEditIndex(); // VorgÃ¤nger oder Parent des neu eingefÃ¼gten
 	if( !pred.isValid() )
         // Es wird nicht editiert; also verwende Current
 		pred = getTree()->currentIndex();
@@ -185,7 +186,7 @@ void OutlineCtrl::nextOrSub( QModelIndex& parent, int& newRow )
 	{
 		if( getTree()->isExpanded( pred ) && getTree()->model()->hasChildren( pred ) )
 		{
-            // Der Kandidat ist geöffnet und hat Kinder; insert ist also an erster Stelle unter dem Kandidaten
+            // Der Kandidat ist geÃ¶ffnet und hat Kinder; insert ist also an erster Stelle unter dem Kandidaten
 			parent = pred;
 			newRow = 0;
 		}else
@@ -193,13 +194,13 @@ void OutlineCtrl::nextOrSub( QModelIndex& parent, int& newRow )
             // Der Kandidat ist ein Element in der Liste
 			parent = pred.parent();
 			if( d_deleg->isEditing() && d_deleg->getEditCtrl()->getView()->getCursor().getPosition() == 0 )
-				newRow = pred.row(); // Wenn Cursor ganz am Anfang, füge Item davor ein.
+				newRow = pred.row(); // Wenn Cursor ganz am Anfang, fÃ¼ge Item davor ein.
 			else
-				newRow = pred.row() + 1; // Wir sind bereits der Vorgänger
+				newRow = pred.row() + 1; // Wir sind bereits der VorgÃ¤nger
 		}
 	}else
 	{
-        // Es wird nicht editiert und es gibt keinen Current Index; füge zuunterst ein im Root
+        // Es wird nicht editiert und es gibt keinen Current Index; fÃ¼ge zuunterst ein im Root
 		parent = QModelIndex();
 		newRow = getTree()->model()->rowCount();
     }
@@ -208,7 +209,7 @@ void OutlineCtrl::nextOrSub( QModelIndex& parent, int& newRow )
 void OutlineCtrl::setModel(OutlineMdl * mdl)
 {
     OutlineTree* p = getTree();
-    p->setModel( mdl ); // erst mit setModel wird ein selectionModel angelegt. Vorher kommt null zurück.
+    p->setModel( mdl ); // erst mit setModel wird ein selectionModel angelegt. Vorher kommt null zurÃ¼ck.
     connect( p->selectionModel(),
 		SIGNAL(currentChanged( const QModelIndex &,const QModelIndex & ) ),
 		this, SLOT( onCurrentChanged ( const QModelIndex &,const QModelIndex & ) ) );
@@ -333,7 +334,7 @@ bool OutlineCtrl::isFormatSupported(const QMimeData * mime)
         return false;
 }
 
-void OutlineCtrl::addTextCommands(Gui2::AutoMenu * sub)
+void OutlineCtrl::addTextCommands(Gui::AutoMenu * sub)
 {
     sub->addCommand( tr("Bold"), this, SLOT(onBold()), tr("CTRL+B"), true )->setCheckable(true);
 	sub->addCommand( tr("Underline"), this, SLOT(onUnderline()), tr("CTRL+U"), true )->setCheckable(true);

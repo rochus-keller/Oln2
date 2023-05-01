@@ -2,13 +2,13 @@
 #define __Oln_OutlineCtrl__
 
 /*
-* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.info>
+* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.ch>
 *
 * This file is part of the CrossLine outliner Oln2 library.
 *
 * The following is the license that applies to this copy of the
 * library. For a license to use the library under conditions
-* other than those described here, please email to me@rochus-keller.info.
+* other than those described here, please email to me@rochus-keller.ch.
 *
 * GNU General Public License Usage
 * This file may be used under the terms of the GNU General Public
@@ -20,8 +20,8 @@
 * http://www.gnu.org/copyleft/gpl.html.
 */
 
-#include <Gui2/Controller.h>
-#include <Gui2/AutoMenu.h>
+#include <GuiTools/Controller.h>
+#include <GuiTools/AutoMenu.h>
 #include <Oln2/OutlineTree.h>
 #include <Oln2/OutlineDeleg.h>
 #include <Txt/LinkRendererInterface.h>
@@ -32,7 +32,7 @@ namespace Oln
 {
     class OutlineMdl;
 
-	class OutlineCtrl : public Gui2::Controller
+    class OutlineCtrl : public Gui::Controller
 	{
 		Q_OBJECT
 	public:
@@ -42,7 +42,7 @@ namespace Oln
 		virtual bool copyToClipBoard( bool cut = false );
         virtual bool pasteFromClipBoard(bool special = false);
         virtual bool isFormatSupported( const QMimeData *mime);
-        void addTextCommands( Gui2::AutoMenu* );
+        void addTextCommands( Gui::AutoMenu* );
 		static QString fetchHtml( const QMimeData * );
 		static QString fetchHtml( const QByteArray& );
 	signals:

@@ -1,11 +1,11 @@
 /*
-* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.info>
+* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.ch>
 *
 * This file is part of the CrossLine outliner Oln2 library.
 *
 * The following is the license that applies to this copy of the
 * library. For a license to use the library under conditions
-* other than those described here, please email to me@rochus-keller.info.
+* other than those described here, please email to me@rochus-keller.ch.
 *
 * GNU General Public License Usage
 * This file may be used under the terms of the GNU General Public
@@ -27,6 +27,7 @@
 #include <QMimeData>
 #include <QApplication>
 #include <QClipboard>
+#include <QUrlQuery>
 #include "OutlineUdbStream.h"
 #include "TextToOutline.h"
 using namespace Oln;
@@ -35,7 +36,7 @@ using namespace Udb;
 const char* OutlineUdbMdl::s_mimeOutline = "application/crossline/items";
 
 
-static const int s_batch = 50; // Wenn es weniger sind als eine Seitenlänge gibt es Probleme
+static const int s_batch = 50; // Wenn es weniger sind als eine SeitenlÃ¤nge gibt es Probleme
 
 static QMap<quint32, QPair<QString,QString> > s_pix; // typeId -> [path,typeCode]
 static QMap<QString,quint32> s_typeCodes; // typeCode -> typeId
@@ -77,7 +78,7 @@ QVariant OutlineUdbMdl::UdbSlot::getData(const OutlineMdl* mdl,int role) const
             // Falls das Item ein Alias ist
 			Udb::Obj o = d_item.getObject( oid );
 			if( !o.isNull() )
-                // Das Alias zeigt auf ein gültiges Objekt
+                // Das Alias zeigt auf ein gÃ¼ltiges Objekt
 				o.getValue( OutlineItem::AttrText, v );
 			else
                 // Das Objekt, auf welches das Alias zeigt, ist unbekannt
@@ -113,7 +114,7 @@ QVariant OutlineUdbMdl::UdbSlot::getData(const OutlineMdl* mdl,int role) const
 			return pix;
 	}else if( role == IdentRole )
 	{
-		// Wir verwenden hier tatsächlich zuerst die ID des Alias und dann des Originals
+		// Wir verwenden hier tatsÃ¤chlich zuerst die ID des Alias und dann des Originals
 		QString id = d_item.getString( OutlineItem::AttrAltIdent, true );
 		if( id.isEmpty() )
 			id = d_item.getString( OutlineItem::AttrIdent, true );
@@ -296,7 +297,7 @@ void OutlineUdbMdl::onDbUpdate( Udb::UpdateInfo info )
 			{
 				emit dataChanged( i, i );
 			}
-			// TODO: update, wenn ein Zielobjekt eines Alias-Items geändert wurde?
+			// TODO: update, wenn ein Zielobjekt eines Alias-Items geÃ¤ndert wurde?
 		}
 		break;
 	case UpdateInfo::Deaggregated:
@@ -307,9 +308,9 @@ void OutlineUdbMdl::onDbUpdate( Udb::UpdateInfo info )
 			const QModelIndex indexToRemove = getIndex( info.d_id );
 			if( indexToRemove.isValid() )
 			{
-                // Wenn Objekt bereits gelöscht wurde oder gar nicht da war, müssen wir nichts tun
+                // Wenn Objekt bereits gelÃ¶scht wurde oder gar nicht da war, mÃ¼ssen wir nichts tun
 				UdbSlot* slotToRemove = getSlot( indexToRemove );
-				d_blocked = true; // Nötig, da irgend jemand bei beginRemoveRows fetchMore aufruft
+				d_blocked = true; // NÃ¶tig, da irgend jemand bei beginRemoveRows fetchMore aufruft
                                     // RISK Seit 15.1.12 nie mehr beobachtet!
                 beginRemoveRows( parentIndex, indexToRemove.row(), indexToRemove.row() );
                 // TEST
@@ -333,12 +334,12 @@ void OutlineUdbMdl::onDbUpdate( Udb::UpdateInfo info )
                 // TEST
 				//qDebug() << "*** already loaded" << d_outline.getObject( info.d_id ).getValue( OutlineItem::AttrText ).toPrettyString();
 				//qDebug() << "to parent" << d_outline.getObject( s->getSuper()->getId() ).getValue( OutlineItem::AttrText ).toPrettyString();
-                break; // fetch hat das Objekt bereits geladen; wir müssen nicht nochmals
+                break; // fetch hat das Objekt bereits geladen; wir mÃ¼ssen nicht nochmals
             }
 			Udb::Obj objToAdd = d_outline.getObject( info.d_id );
 			Q_ASSERT( !objToAdd.isNull() );
 			if( objToAdd.getType() != OutlineItem::TID )
-				break; // Es können auch andere Objekte aggregiert sein, die nichts ins Outline gehören.
+				break; // Es kÃ¶nnen auch andere Objekte aggregiert sein, die nichts ins Outline gehÃ¶ren.
 			if( parentSlot->getSubs().isEmpty() )
 			{
 				// wir vermuten in diesem Fall, dass Fetch noch nicht stattgefunden hat.
@@ -391,7 +392,7 @@ bool OutlineUdbMdl::setData ( const QModelIndex & index, const QVariant & value,
 		UdbSlot* s = getSlot( index );
 		if( !s->d_item.getValue( OutlineItem::AttrAlias ).isOid() )
 		{
-			// Den Wert von Alias-Items können wir nicht direkt setzen
+			// Den Wert von Alias-Items kÃ¶nnen wir nicht direkt setzen
 			Stream::DataCell v;
 			if( value.canConvert<Oln::OutlineUdbMdl::Bml>() )
 				v.setBml( value.value<Oln::OutlineUdbMdl::Bml>().d_bml );
@@ -435,7 +436,7 @@ Obj OutlineUdbMdl::getItem(int row, const QModelIndex &parent) const
     if( d_outline.isNull() )
 		return Udb::Obj();
     UdbSlot* p = getSlot( parent );
-    // Diese Funktion ist robust gegenüber row ausserhalb Gültigkeit, so wie sie bei loadFromText/Html erscheinen
+    // Diese Funktion ist robust gegenÃ¼ber row ausserhalb GÃ¼ltigkeit, so wie sie bei loadFromText/Html erscheinen
     if( row >= 0 && row < p->getSubs().size() )
         return d_outline.getObject( p->getSubs()[row]->getId() );
     else
@@ -493,7 +494,7 @@ QModelIndex OutlineUdbMdl::findInLevel( const QModelIndex & parent, quint64 oid 
 			ObjList l;
 			const int n = fetch( p, s_batch, &l );
 			if( n == 0 )
-				break; // Nichts gefunden auf Level, trotz vollständigem Fetch
+				break; // Nichts gefunden auf Level, trotz vollstÃ¤ndigem Fetch
             OutlineUdbMdl* mdl = const_cast<OutlineUdbMdl*>( this );
 			mdl->beginInsertRows( parent, p->getSubs().size(), p->getSubs().size() + n - 1 );
 			mdl->create( p, l );
@@ -502,13 +503,13 @@ QModelIndex OutlineUdbMdl::findInLevel( const QModelIndex & parent, quint64 oid 
 		if( p->getSubs()[i]->getId() == oid )
 			return createIndex( i, 0, p->getSubs()[i] );
 		i++;
-	}while( true ); // NOTE: ansonsten keine Chance für fetch: i < p->getSubs().size() );
+	}while( true ); // NOTE: ansonsten keine Chance fÃ¼r fetch: i < p->getSubs().size() );
 	return QModelIndex();
 }
 
 QMimeData * OutlineUdbMdl::mimeData ( const QModelIndexList & indexes ) const
 {
-	// NOTE: alle Elemente von indexes müssen denselben Parent haben, damit sie hier verarbeitet werden.
+	// NOTE: alle Elemente von indexes mÃ¼ssen denselben Parent haben, damit sie hier verarbeitet werden.
 
 	QMimeData* mimeData = new QMimeData();
 	if( indexes.isEmpty() || d_outline.isNull() )
@@ -649,7 +650,7 @@ bool OutlineUdbMdl::moveOrLinkRefs( const QByteArray& bml, const Udb::Obj& paren
 
 					if( docLink && o.getType() == OutlineItem::TID )
 					{
-						// Falls nicht das Item, sondern das übergeordnete Outline als Link eingefügt werden soll.
+						// Falls nicht das Item, sondern das Ã¼bergeordnete Outline als Link eingefÃ¼gt werden soll.
 						o = o.getValueAsObj( OutlineItem::AttrHome );
 						if( o.isNull() )
 							continue; // RISK: ignoriere das fehlerhafte Item
@@ -775,11 +776,12 @@ QUrl OutlineUdbMdl::objToUrl(const Obj & o)
 	if( o.isNull() )
 		return QUrl();
 	// URI-Schema gem. http://en.wikipedia.org/wiki/URI_scheme und http://tools.ietf.org/html/rfc3986 bzw. http://tools.ietf.org/html/rfc6068
-	// Format: xoid:49203@348c2483-206a-40a6-835a-9b9753b60188?ty=MO;id=MO1425;txt=lkjd aölkj adfölkj adsf
+	// Format: xoid:49203@348c2483-206a-40a6-835a-9b9753b60188?ty=MO;id=MO1425;txt=lkjd aÃ¶lkj adfÃ¶lkj adsf
 	QUrl url = Udb::Obj::objToUrl(o);
 	if( true )
 	{
-		url.setQueryDelimiters( '=', ';' );
+        QUrlQuery q;
+        q.setQueryDelimiters( '=', ';' );
 		QList<QPair<QString, QString> > items;
 		QString ty = getTypeCode( o.getType() );
 		if( !ty.isEmpty() )
@@ -787,7 +789,8 @@ QUrl OutlineUdbMdl::objToUrl(const Obj & o)
 		if( o.hasValue( OutlineItem::AttrAltIdent ) )
 			items.append( qMakePair( tr("id"), o.getString(OutlineItem::AttrAltIdent ) ) );
 		items.append( qMakePair( tr("txt"), o.getString( OutlineItem::AttrText ) ) );
-		url.setQueryItems( items );
+        q.setQueryItems( items );
+        url.setQuery(q);
 	}
 	return url;
 }

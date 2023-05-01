@@ -1,11 +1,11 @@
 /*
-* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.info>
+* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.ch>
 *
 * This file is part of the CrossLine outliner Oln2 library.
 *
 * The following is the license that applies to this copy of the
 * library. For a license to use the library under conditions
-* other than those described here, please email to me@rochus-keller.info.
+* other than those described here, please email to me@rochus-keller.ch.
 *
 * GNU General Public License Usage
 * This file may be used under the terms of the GNU General Public
@@ -100,7 +100,7 @@ Udb::Obj OutlineStream::readFrom( DataReader &in, Udb::Transaction *txn, DataCel
 		return Udb::Obj();
 	}
 	Udb::Obj oln = readObj( in, txn, home );
-	if( home == 0 ) // Wenn kein äusseres Home, dann ist oln ein eigenständiges Objekt
+	if( home == 0 ) // Wenn kein Ã¤usseres Home, dann ist oln ein eigenstÃ¤ndiges Objekt
 	{
 		_setHome( oln, oln );
 		oln.setType( 0 );
@@ -145,7 +145,7 @@ Udb::Obj OutlineStream::readObj( DataReader & in, Udb::Transaction *txn, DataCel
 					oln.setValue( OutlineItem::AttrIsExpanded, in.readValue() );
 				else if( name.equals( "ali" ) )
 				{
-					// Falls Objekt nicht bekannt, wird gleichwohl ein Null-Alias eingefügt.
+					// Falls Objekt nicht bekannt, wird gleichwohl ein Null-Alias eingefÃ¼gt.
 					Udb::Obj o = txn->getObject( in.readValue() );
 					oln.setValue( OutlineItem::AttrAlias, o );
 					// Wenn das Alias bekannt ist, brauchen wir keinen lokalen Text.

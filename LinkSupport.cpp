@@ -1,11 +1,11 @@
 /*
-* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.info>
+* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.ch>
 *
 * This file is part of the CrossLine outliner Oln2 library.
 *
 * The following is the license that applies to this copy of the
 * library. For a license to use the library under conditions
-* other than those described here, please email to me@rochus-keller.info.
+* other than those described here, please email to me@rochus-keller.ch.
 *
 * GNU General Public License Usage
 * This file may be used under the terms of the GNU General Public
@@ -142,7 +142,7 @@ EditLinkDlg::EditLinkDlg(QWidget * w):QDialog(w)
 bool EditLinkDlg::edit(Link &l, bool isOutlineItem)
 {
 	Q_UNUSED(isOutlineItem);
-	// NOTE: neu sind alle Optionen auch für Objekte sinnvoll, die keine Outlines/Items sind
+	// NOTE: neu sind alle Optionen auch fÃ¼r Objekte sinnvoll, die keine Outlines/Items sind
     d_showIcon->setChecked( l.d_showIcon );
     d_showId->setChecked( l.d_showId );
     d_showName->setChecked( l.d_showName );

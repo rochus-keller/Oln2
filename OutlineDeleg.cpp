@@ -1,11 +1,11 @@
 /*
-* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.info>
+* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.ch>
 *
 * This file is part of the CrossLine outliner Oln2 library.
 *
 * The following is the license that applies to this copy of the
 * library. For a license to use the library under conditions
-* other than those described here, please email to me@rochus-keller.info.
+* other than those described here, please email to me@rochus-keller.ch.
 *
 * GNU General Public License Usage
 * This file may be used under the terms of the GNU General Public
@@ -46,16 +46,16 @@ static const qreal s_horiIdMargin = 2.0;
 static const int s_lo = 1; // Left offset
 static const int s_ro = 0; // Right offset
 static const int s_wb = 1; // Change Bar Width
-static const int s_vo = -2; // -2, Vertical Offset of Text (nur für den Text, nicht das Icon)
-static const int s_vhr = -1; // -1, Vertical Height Reduction (nur für den Text, nicht das Icon)
+static const int s_vo = -2; // -2, Vertical Offset of Text (nur fÃ¼r den Text, nicht das Icon)
+static const int s_vhr = -1; // -1, Vertical Height Reduction (nur fÃ¼r den Text, nicht das Icon)
 static const int s_pb = 1; // Pix Board
 
 OutlineDeleg::OutlineDeleg(OutlineTree *parent, Styles* s, const LinkRendererInterface *lr)
 	: QAbstractItemDelegate(parent), d_isTitle(false), d_isReadOnly( false ), d_biggerTitle( true ), 
 	  d_block1(false), d_showIcons( false ), d_linkRenderer( lr ), d_showIDs( true )
 {
-	parent->viewport()->installEventFilter( this ); // wegen Focus und Resize während Edit
-	parent->installEventFilter( this ); // wegen Focus und Resize während Edit
+	parent->viewport()->installEventFilter( this ); // wegen Focus und Resize wÃ¤hrend Edit
+	parent->installEventFilter( this ); // wegen Focus und Resize wÃ¤hrend Edit
 
 	TextView* view = new TextView( this, s );
 	d_ctrl = new TextCtrl( this, view );
@@ -95,7 +95,7 @@ void OutlineDeleg::onFontStyleChanged()
 	d_titleFont.setBold( true );
 	d_titleFont.setPointSizeF( d_titleFont.pointSizeF() * ( (d_biggerTitle)? 1.08 : 1.0 ) );
 	QFontMetrics m( d_ctrl->view()->getCursor().getStyles()->getFont() );
-	view()->setStepSize( m.height() );
+    view()->setStepSize( m.height() + 1 );
 	view()->doItemsLayout();
 }
 
@@ -116,6 +116,15 @@ OutlineDeleg::Format OutlineDeleg::renderToDocument( const QModelIndex & index, 
 {
 	const bool isTitle = index.data( OutlineMdl::TitleRole ).toBool();
 	const QVariant v = index.data( Qt::DisplayRole );
+
+    QTextBlockFormat format = d_ctrl->view()->getCursor().getStyles()->getBlockFormat( Styles::PAR );
+
+    QTextFrameFormat ff = doc.rootFrame()->frameFormat();
+    format.topMargin();
+    ff.setTopMargin(3.0); // empirically optimized
+    ff.setBottomMargin(1.0);
+    doc.rootFrame()->setFrameFormat(ff);
+
 	if( isTitle )
 	{
         //const int level = qMin( index.data( OutlineMdl::LevelRole ).toInt(), 6 );
@@ -123,7 +132,6 @@ OutlineDeleg::Format OutlineDeleg::renderToDocument( const QModelIndex & index, 
 		QTextCharFormat f;
 		f.setFont( d_titleFont ); // d_ctrl->view()->getCursor().getStyles()->getFont( level ) );
 		doc.setDefaultFont( d_titleFont );
-		QTextBlockFormat format = d_ctrl->view()->getCursor().getStyles()->getBlockFormat( Styles::PAR );
 		if( d_showIDs )
 		{
 			const QString id = index.data( OutlineMdl::IdentRole ).toString();
@@ -157,7 +165,6 @@ OutlineDeleg::Format OutlineDeleg::renderToDocument( const QModelIndex & index, 
 	}else
 	{
 		doc.setDefaultFont( d_ctrl->view()->getCursor().getStyles()->getFont( 0 ) );
-		QTextBlockFormat format = d_ctrl->view()->getCursor().getStyles()->getBlockFormat( Styles::PAR );
 		if( d_showIDs )
 		{
 			const QString id = index.data( OutlineMdl::IdentRole ).toString();
@@ -208,10 +215,10 @@ void OutlineDeleg::paint ( QPainter * painter, const QStyleOptionViewItem & opti
 	{
 		if( index.data( OutlineMdl::AliasRole ).toBool() )
 		{
-			bgClr = QColor::fromRgb( 245, 245, 245 ); // Gräulich
+			bgClr = QColor::fromRgb( 245, 245, 245 ); // GrÃ¤ulich
 		}else if( index.data( OutlineMdl::TitleRole ).toBool() )
 		{
-			bgClr = QColor::fromRgb( 224, 249, 206 ); // Grünlich
+			bgClr = QColor::fromRgb( 224, 249, 206 ); // GrÃ¼nlich
 		}else
 		{
 			bgClr = QColor::fromRgb( 255, 254, 225 ); // Gelblich
@@ -246,11 +253,11 @@ void OutlineDeleg::paint ( QPainter * painter, const QStyleOptionViewItem & opti
 		{
 			font.setBold(true);
 			QFontMetricsF fm(font);
-			QRectF rect( option.rect.left() + ds.width() + s_horiIdMargin, option.rect.top(), fm.width( id ), fm.height() );
+            QRectF rect( option.rect.left() + ds.width() + s_horiIdMargin, option.rect.top(),
+                         fm.width( id ), fm.height() + 1.0 );
 			painter->setPen( Qt::black );
 			painter->setFont( font );
-			painter->fillRect( rect.adjusted( -2.0, 0.0, 2.0, 0.0 ), bgClr.darker(107) );
-			//painter->drawRect( rect.adjusted( -2.0, 0.0, 1.0, -2.0 ) );
+            painter->fillRect( rect.adjusted( -2.0, 0.0, 2.0, 1.0 ), bgClr.darker(107) );
 			painter->drawText( rect, Qt::AlignCenter, id );
 		}
 	}
@@ -271,9 +278,10 @@ void OutlineDeleg::paint ( QPainter * painter, const QStyleOptionViewItem & opti
 	}
     if( d_edit == index && view()->hasFocus() )
 	{
+        const QColor clr = Qt::black; // option.palette.color( QPalette::Highlight) Blue under Fusion, black is better
         if( view()->allColumnsShowFocus() )
         {
-            painter->setPen( QPen( option.palette.color( QPalette::Highlight), 1 ) );
+            painter->setPen( QPen( clr, 1 ) );
             // Hier zeichnet QTreeView noch ein Focus-Rect, darum um einen Point nach innen versetzt
             painter->drawLine( option.rect.left() + 1, option.rect.bottom()-1,
                                option.rect.right(), option.rect.bottom()-1 ); // unten
@@ -282,7 +290,7 @@ void OutlineDeleg::paint ( QPainter * painter, const QStyleOptionViewItem & opti
         }else
         {
             const int penWidth = 1; // 2
-            painter->setPen( QPen( option.palette.color( QPalette::Highlight), penWidth ) );
+            painter->setPen( QPen( clr, penWidth ) );
             painter->drawLine( option.rect.left() + 1, option.rect.bottom(),
                                option.rect.right(), option.rect.bottom()); // unten
             painter->drawLine( option.rect.left() + penWidth / 2, option.rect.top() + penWidth / 2,
@@ -340,9 +348,9 @@ QWidget * OutlineDeleg::createEditor ( QWidget * parent,
 	disconnect( d_ctrl->view(), SIGNAL( extentChanged() ), this, SLOT( extentChanged() ) );
 	d_edit = index;
 	readData();
-	// Bei Indent wird diese Funktion irrtümlich von Qt ohne gültige Breite aufgerufen.
+	// Bei Indent wird diese Funktion irrtÃ¼mlich von Qt ohne gÃ¼ltige Breite aufgerufen.
 	const QSize ds = decoSize( index );
-	d_ctrl->setPos( option.rect.left() + ds.width(), option.rect.top() + s_vo ); // das muss hier stehen, damit erster Click richtig übersetzt
+	d_ctrl->setPos( option.rect.left() + ds.width(), option.rect.top() + s_vo ); // das muss hier stehen, damit erster Click richtig Ã¼bersetzt
 	if( ( option.rect.width() - ds.width() - s_ro ) != d_ctrl->view()->getExtent().width() )
 		d_ctrl->view()->setWidth( option.rect.width() - ds.width() - s_ro, option.rect.height() );
 	
@@ -350,7 +358,7 @@ QWidget * OutlineDeleg::createEditor ( QWidget * parent,
 	{
 		QAbstractItemModel* mdl = const_cast<QAbstractItemModel*>( d_edit.model() );
 		mdl->setData( d_edit, 0, Qt::SizeHintRole );
-		// Dirty Trick um dataChanged auszulösen und Kosten für doItemsLayout zu sparen.
+		// Dirty Trick um dataChanged auszulÃ¶sen und Kosten fÃ¼r doItemsLayout zu sparen.
 	}
 
 	view()->viewport()->update( option.rect );
@@ -375,7 +383,7 @@ bool OutlineDeleg::editorEvent(QEvent *event,
 		{
 		case QEvent::MouseButtonDblClick:
 			d_ctrl->mouseDoubleClickEvent( (QMouseEvent*) event );
-			return true; // Event wird in jedem Fall konsumiert, damit Selektion nicht verändert wird durch Tree::edit
+			return true; // Event wird in jedem Fall konsumiert, damit Selektion nicht verÃ¤ndert wird durch Tree::edit
 		case QEvent::MouseButtonPress:
 			d_ctrl->mousePressEvent( (QMouseEvent*) event );
 			return true; // Dito
@@ -404,7 +412,7 @@ bool OutlineDeleg::editorEvent(QEvent *event,
 				}
 				if( d_ctrl->keyPressEvent( e ) )
 				{
-					// Sorge dafür, dass Cursor immer sichtbar bleibt während Eingabe, bzw. dass er nicht
+					// Sorge dafÃ¼r, dass Cursor immer sichtbar bleibt wÃ¤hrend Eingabe, bzw. dass er nicht
 					// unter dem Rand verschwindet
 					QRectF r = d_ctrl->getView()->cursorRect();
 					view()->ensureVisibleInCurrent( r.top(), r.height() );
@@ -418,7 +426,7 @@ bool OutlineDeleg::editorEvent(QEvent *event,
                 QInputMethodEvent* e = (QInputMethodEvent*) event;
                 if( d_ctrl->inputMethodEvent( e ) )
                 {
-                    // Sorge dafür, dass Cursor immer sichtbar bleibt während Eingabe, bzw. dass er nicht
+                    // Sorge dafÃ¼r, dass Cursor immer sichtbar bleibt wÃ¤hrend Eingabe, bzw. dass er nicht
                     // unter dem Rand verschwindet
                     QRectF r = d_ctrl->getView()->cursorRect();
                     view()->ensureVisibleInCurrent( r.top(), r.height() );
@@ -445,7 +453,7 @@ void OutlineDeleg::readData() const
 	d_ctrl->view()->clear();
 	const bool editable = !d_isReadOnly && !d_edit.data( OutlineMdl::ReadOnlyRole ).toBool() && 
 		!d_edit.data( OutlineMdl::AliasRole ).toBool();
-	d_ctrl->view()->getDocument()->setUndoRedoEnabled( false ); // Das ist nötig, damit fillDoc nicht Undo unterliegt.
+	d_ctrl->view()->getDocument()->setUndoRedoEnabled( false ); // Das ist nÃ¶tig, damit fillDoc nicht Undo unterliegt.
 	d_editFormat = renderToDocument( d_edit, *d_ctrl->view()->getDocument() );
 	d_isTitle = d_edit.data( OutlineMdl::TitleRole ).toBool();
 	d_ctrl->view()->getDocument()->setUndoRedoEnabled( true );
@@ -515,7 +523,7 @@ void OutlineDeleg::extentChanged()
 		return;
 	d_block1 = true;
 	QAbstractItemModel* mdl = const_cast<QAbstractItemModel*>( d_edit.model() );
-	// Dirty Trick um dataChanged auszulösen und Kosten für doItemsLayout zu sparen.
+	// Dirty Trick um dataChanged auszulÃ¶sen und Kosten fÃ¼r doItemsLayout zu sparen.
 	mdl->setData( d_edit, 0, Qt::SizeHintRole );
 	// folgendes wird bei jedem keyPressEvent erledigt, nicht nur bei extentChanged
 	//QRectF r = d_ctrl->getView()->cursorRect();
@@ -572,7 +580,7 @@ bool OutlineDeleg::eventFilter(QObject *watched, QEvent *event)
 	{
 		QResizeEvent* e = static_cast<QResizeEvent*>( event );
 		if( e->size().width() != e->oldSize().width() )
-			// Bei unmittelbarer Ausführung scheint die Breite noch nicht zu stimmen.
+			// Bei unmittelbarer AusfÃ¼hrung scheint die Breite noch nicht zu stimmen.
 			QMetaObject::invokeMethod( this, "relayout", Qt::QueuedConnection );
 		return false; // auch Tree soll etwas davon haben
 	}

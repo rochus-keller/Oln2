@@ -2,13 +2,13 @@
 #define _Oln_OutlineTree
 
 /*
-* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.info>
+* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.ch>
 *
 * This file is part of the CrossLine outliner Oln2 library.
 *
 * The following is the license that applies to this copy of the
 * library. For a license to use the library under conditions
-* other than those described here, please email to me@rochus-keller.info.
+* other than those described here, please email to me@rochus-keller.ch.
 *
 * GNU General Public License Usage
 * This file may be used under the terms of the GNU General Public
@@ -31,7 +31,7 @@ namespace Oln
 		OutlineTree( QWidget* );
 		~OutlineTree();
 		void setShowNumbers( bool on ) { d_showNumbers = on; }
-		void setStepSize( quint8 ); // Für vertikalen Scrollbar
+		void setStepSize( quint8 ); // FÃ¼r vertikalen Scrollbar
 		int stepSize() const { return d_stepSize; }
 		void setHandleWidth( quint8 ); // 11 default. 9 and 7 work fine
 		void ensureVisibleInCurrent( int yOffset, int h ); // yOffset..Position innerhalb currentIndex 
@@ -53,7 +53,7 @@ namespace Oln
 		void keyPressEvent(QKeyEvent *event);
 		bool edit(const QModelIndex &index, EditTrigger trigger, QEvent *event);
 		void drawBranches ( QPainter * painter, const QRect & rect, const QModelIndex & index ) const;
-		int indexRowSizeHint(const QModelIndex &index) const;
+        int indexRowSizeHint(const QModelIndex &index) const;
 		void mousePressEvent(QMouseEvent *event);
 		void mouseMoveEvent(QMouseEvent *event);
 		void mouseDoubleClickEvent(QMouseEvent *event);
@@ -71,7 +71,7 @@ namespace Oln
 		bool d_showNumbers;
 		bool d_dragEnabled;
 		quint8 d_stepSize;
-		quint8 d_handleWidth;
+        quint8 d_indicatorAreaWidth; // the part of the handle where the indicator is displayed
 		bool d_clickInEditor;
         bool d_dragging;
         bool d_hitExpander;

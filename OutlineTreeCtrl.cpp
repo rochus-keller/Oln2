@@ -68,7 +68,7 @@ OutlineTreeCtrl::OutlineTreeCtrl( QTreeView* w, OutlineTreeDeleg* d, bool b ):
 	EventListener( w, b ), d_deleg( d ), d_expandLock( false ), d_mdl(0), d_dirty(false)
 { // OutlineTreeCtrl( w, b )
 	assert( w );
-	observe( w->viewport() ); // beobachte zusätzlich den Viewport für Mouse-Events
+	observe( w->viewport() ); // beobachte zusÃ¤tzlich den Viewport fÃ¼r Mouse-Events
 	d_mdl = 0;
 
     Gui::Menu* rec = new Gui::Menu( wnd(), true );
@@ -133,7 +133,7 @@ void OutlineTreeCtrl::connectModel()
 {
 	connect( d_mdl, SIGNAL( rowsInserted( const QModelIndex &, int, int ) ),
 		this, SLOT( inserted( const QModelIndex &, int, int ) ) );
-	// dataChanged eignet sich nicht, da es auch wegen Grössenänderung getriggert wird.
+	// dataChanged eignet sich nicht, da es auch wegen GrÃ¶ssenÃ¤nderung getriggert wird.
 	connect( d_mdl, SIGNAL( onDirty() ), this, SLOT(onChange() ) );
 	connect( d_mdl, SIGNAL( rowsRemoved(const QModelIndex &, int, int) ), this, SLOT(onChange() ) );
 	// Qt::QueuedConnection funktioniert nicht wegen QModelIndex, das als Variant nicht bekannt ist.
@@ -236,7 +236,7 @@ void OutlineTreeCtrl::handleIndent( Root::Action& t)
 {
 	QModelIndex i = wnd()->currentIndex();
 	OutlineItem* e = d_mdl->getItem( i );
-	ENABLED_IF( t, e && e->getOwner() && e->getOwner()->getFirstChild() != e ); // TODO: hier canMove berücksichtigen
+	ENABLED_IF( t, e && e->getOwner() && e->getOwner()->getFirstChild() != e ); // TODO: hier canMove berÃ¼cksichtigen
 	QModelIndex p = d_mdl->sibling( i.row() - 1, i.column(), i );
 	const int toRow = d_mdl->rowCount( p );
 	d_deleg->closeEdit();
@@ -252,7 +252,7 @@ void OutlineTreeCtrl::handleOutdent( Root::Action& t)
 {
 	QModelIndex i = wnd()->currentIndex();
 	OutlineItem* e = d_mdl->getItem( i );
-	ENABLED_IF( t, e && e->getLevel() > 1 ); // TODO: hier canMove berücksichtigen
+	ENABLED_IF( t, e && e->getLevel() > 1 ); // TODO: hier canMove berÃ¼cksichtigen
 
 	// TODO: dasselbe mit Multiselection
 	QModelIndex p = d_mdl->parent( i );
@@ -269,7 +269,7 @@ void OutlineTreeCtrl::handleMoveUp(Root::Action & t)
 	QModelIndex i = wnd()->currentIndex();
 	QModelIndex p = d_mdl->parent( i );
 	ENABLED_IF( t, i.row() > 0 || i != d_mdl->index( 0, 0 ) ); 
-	// TODO: hier canMove berücksichtigen
+	// TODO: hier canMove berÃ¼cksichtigen
 
 	if( i.row() > 0 )
 	{
@@ -288,7 +288,7 @@ void OutlineTreeCtrl::handleMoveDown(Root::Action & t)
 {
 	QModelIndex i = wnd()->currentIndex();
 	QModelIndex p = d_mdl->parent( i );
-	ENABLED_IF( t, i != d_mdl->index( -1, 0 ) ); // TODO: hier canMove berücksichtigen
+	ENABLED_IF( t, i != d_mdl->index( -1, 0 ) ); // TODO: hier canMove berÃ¼cksichtigen
 
 	if( i.row() < d_mdl->rowCount( p ) - 1 )
 	{
@@ -392,7 +392,7 @@ void OutlineTreeCtrl::expanded( const QModelIndex & index )
 {
 	if( !d_expandLock )
 		d_mdl->setData( index, true, OutlineTreeModel::ExpandedRole );
-	// doItemsLayout() nützt hier nichts, es wird trotzdem nicht sauber gezeichnet
+	// doItemsLayout() nÃ¼tzt hier nichts, es wird trotzdem nicht sauber gezeichnet
 }
 
 void OutlineTreeCtrl::inserted( const QModelIndex & p, int start, int end )

@@ -2,13 +2,13 @@
 #define __Oln_OutlineUdbCtrl__
 
 /*
-* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.info>
+* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.ch>
 *
 * This file is part of the CrossLine outliner Oln2 library.
 *
 * The following is the license that applies to this copy of the
 * library. For a license to use the library under conditions
-* other than those described here, please email to me@rochus-keller.info.
+* other than those described here, please email to me@rochus-keller.ch.
 *
 * GNU General Public License Usage
 * This file may be used under the terms of the GNU General Public
@@ -57,8 +57,8 @@ namespace Oln
 
 		static OutlineUdbCtrl* create( QWidget* p, Udb::Transaction* );
 
-        void addItemCommands( Gui2::AutoMenu* );
-        void addOutlineCommands( Gui2::AutoMenu* );
+        void addItemCommands( Gui::AutoMenu* );
+        void addOutlineCommands( Gui::AutoMenu* );
 
         // overrides
         bool copyToClipBoard( bool cut = false );
@@ -92,8 +92,8 @@ namespace Oln
 		void onInsertToc();
         //void onPasteDocAlias();
         void onEditUrl();
-	void onOpenUrl();
-        void onFollowAlias();
+		void onOpenUrl();
+		void onFollowAlias();
 	protected slots:
 		void onAddNextImp();
 		void onDbUpdate( Udb::UpdateInfo );

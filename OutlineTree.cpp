@@ -1,11 +1,11 @@
 /*
-* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.info>
+* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.ch>
 *
 * This file is part of the CrossLine outliner Oln2 library.
 *
 * The following is the license that applies to this copy of the
 * library. For a license to use the library under conditions
-* other than those described here, please email to me@rochus-keller.info.
+* other than those described here, please email to me@rochus-keller.ch.
 *
 * GNU General Public License Usage
 * This file may be used under the terms of the GNU General Public
@@ -24,13 +24,15 @@
 #include <QScrollBar>
 #include <QtDebug>
 #include <QItemSelectionModel>
+#include <QPainter>
+#include <QDrag>
 #include <cassert>
 #include "OutlineMdl.h"
 #include "OutlineDeleg.h"
 using namespace Oln;
 
 // Diese Datei ist eine Adaption von DoorScope DocTree
-// Ganz frei von Udb. Weiss nichts über die Art der Speicherung des Outlines.
+// Ganz frei von Udb. Weiss nichts Ã¼ber die Art der Speicherung des Outlines.
 
 class OutlineTreeSelectionModel : public QItemSelectionModel
 {
@@ -59,7 +61,7 @@ public:
 		{
 			const QItemSelection curSel = selection();
 			if( curSel.isEmpty() )
-				return; // Das kommt tatsächlich vor und wird auch von Qt nicht erwartet
+				return; // Das kommt tatsÃ¤chlich vor und wird auch von Qt nicht erwartet
 			const QModelIndex parent = curSel.first().topLeft().parent();
 			QItemSelection sel = newSel;
 			int i = 0;
@@ -99,7 +101,7 @@ public:
 
 OutlineTree::OutlineTree( QWidget* parent ):
 	QTreeView( parent), d_block( false ), d_stepSize(1), d_block2(false), d_showNumbers( true ),
-    d_handleWidth( 11 ), d_dragEnabled( true ), d_clickInEditor( false ), d_dragging(false)
+    d_indicatorAreaWidth( 11 ), d_dragEnabled( true ), d_clickInEditor( false ), d_dragging(false)
 {
     setAttribute(Qt::WA_KeyCompression); // hat keinen erkennbaren Effekt, weder auf Linux noch Windows
     // setAttribute(Qt::WA_InputMethodEnabled); // wird bereits in QAbstractItemView gesetzt
@@ -121,7 +123,7 @@ OutlineTree::OutlineTree( QWidget* parent ):
 	setWordWrap( true );
 	setSelectionBehavior( QAbstractItemView::SelectRows );
 	setSelectionMode( QAbstractItemView::ContiguousSelection ); // Das ist der beste mode. Multi funktioniert
-                                                                // nicht und extended lässt unzusammenhängende zu
+                                                                // nicht und extended lÃ¤sst unzusammenhÃ¤ngende zu
 	header()->hide();
 
 	connect( this, SIGNAL( expanded ( const QModelIndex & ) ), this, SLOT( onExpanded ( const QModelIndex & ) ) );
@@ -150,16 +152,16 @@ void OutlineTree::drawBranches( QPainter * painter,
 		painter->fillRect( rect, palette().brush( 
 			(d->current & 1)?QPalette::AlternateBase:QPalette::Base ) );
 		if( selected )
-			painter->fillRect( rect.adjusted( 0, 0, -d_handleWidth, -1 ), palette().brush( QPalette::Highlight ) );
+            painter->fillRect( rect.adjusted( 0, 0, -d_indicatorAreaWidth, -1 ), palette().brush( QPalette::Highlight ) );
 	}else
 	{
 		painter->fillRect( rect, palette().brush( QPalette::Base ) );
 		painter->setPen( Qt::lightGray );
 		painter->drawLine( rect.left(), rect.bottom(), rect.right(), rect.bottom() );
-		const QRect r = rect.adjusted( 0, 0, -d_handleWidth, -1 );
+        const QRect hr = rect.adjusted( 0, 0, -d_indicatorAreaWidth, -1 );
 		if( selected )
 		{
-			painter->fillRect( r,
+            painter->fillRect( hr,
 				//(hasSubs)?r:rect, 
 				palette().brush( QPalette::Highlight ) );
 			painter->setPen( palette().color( QPalette::HighlightedText ) );
@@ -168,7 +170,7 @@ void OutlineTree::drawBranches( QPainter * painter,
 			painter->setPen( Qt::black );
 		}
 		if( d_showNumbers )
-			painter->drawText( r.adjusted( 1, 0, 0, 0 ), Qt::TextSingleLine | Qt::AlignTop | Qt::AlignLeft, 
+            painter->drawText( hr.adjusted( 1, 1, 0, 0 ), Qt::TextSingleLine | Qt::AlignTop | Qt::AlignLeft,
 				index.data( OutlineMdl::NumberRole ).toString() );
 	}
 	if( hasSubs )
@@ -180,12 +182,12 @@ void OutlineTree::drawBranches( QPainter * painter,
 			extraFlags |= QStyle::State_Enabled;
 		if (window()->isActiveWindow())
 			extraFlags |= QStyle::State_Active;
-		// +1: ansonsten gerät das Dreieck in den Selektionsrahmen
-		const int off = d_handleWidth / 5.0 + 0.5; // 2 bei hw=11
-        opt.rect = QRect( rect.right() - off - ( d_handleWidth / 2.0 + 0.5 ), 
-			rect.top() + off, d_handleWidth - off, d_handleWidth - off );
+        const QRect ir = QRect( rect.right() - d_indicatorAreaWidth + 1, rect.top(),
+                                d_indicatorAreaWidth, d_indicatorAreaWidth ); // indicator area rect
+        const int gap = qMax( int(d_indicatorAreaWidth / 5.0 + 0.5),1);
+        opt.rect = ir.adjusted(gap, gap, -gap, -gap);
         opt.state = QStyle::State_Item | extraFlags;
-		// bei w=9 ist die von IndicatorArrow schwarz gefärbte Area w=7
+        // draw the indicator:
 		if( expanded )
 			style()->drawPrimitive(QStyle::PE_IndicatorArrowDown, &opt, painter, this);
 		else
@@ -199,7 +201,7 @@ void OutlineTree::drawRow( QPainter * painter, const QStyleOptionViewItem & opti
     // Focus-Flag deaktivieren, da sonst bei TAB ein FokusRect gemalt wird. Wirkung unklar.
     //opt.state &= ~QStyle::State_HasFocus;
 	//opt.state &= ~QStyle::State_KeyboardFocusChange;
-    // Dieser Aufruf ist nötig, damit überhaupt etwas gemalt wird. Die Oberklasse malt jedoch beharrlich
+    // Dieser Aufruf ist nÃ¶tig, damit Ã¼berhaupt etwas gemalt wird. Die Oberklasse malt jedoch beharrlich
     // ein PE_FrameFocusRect um die Zeile, sobald currentRowHasFocus, egal welche Optionen noch gesetzt sind.
     // State_HasFocus oder State_KeyboardFocusChange haben keinen Einfluss, auch sonst keines der Flags
 	QTreeView::drawRow( painter, opt, index );
@@ -210,7 +212,7 @@ void OutlineTree::drawRow( QPainter * painter, const QStyleOptionViewItem & opti
         QPalette::ColorGroup cg = option.state & QStyle::State_Enabled
                                   ? QPalette::Normal : QPalette::Disabled;
 
-		painter->setPen( option.palette.color( cg, QPalette::Highlight) );
+        painter->setPen( option.palette.color( cg, QPalette::Highlight) );
 		//painter->drawRect( option.rect.adjusted( 0, 0, -1, -1 ) );
 		//painter->drawLine( option.rect.left(), option.rect.bottom(), option.rect.right(), option.rect.bottom() );
 		//painter->drawLine( option.rect.right(), option.rect.top(), option.rect.right(), option.rect.bottom() );
@@ -229,7 +231,7 @@ bool OutlineTree::edit(const QModelIndex &index, EditTrigger trigger, QEvent *ev
         return false;
 
  #if QT_VERSION >= 0x040600
-    if (QWidget *w = (d->persistent.isEmpty() ? 0 : d->editorForIndex(index).editor)) {
+    if (QWidget *w = (d->persistent.isEmpty() ? 0 : d->editorForIndex(index).widget)) {
 #else
     if (QWidget *w = (d->persistent.isEmpty() ? 0 : d->editorForIndex(index))) {
 #endif
@@ -280,7 +282,6 @@ void OutlineTree::goAndEdit( const QModelIndex& index )
 		closeEdit();
 }
 
-
 void OutlineTree::keyPressEvent(QKeyEvent *event)
 {
     //qDebug() << "OutlineTree::keyPressEvent" << event->key() << "'"<< event->text() << "'";
@@ -300,13 +301,16 @@ void OutlineTree::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Backtab:
 	case Qt::Key_Return:
 	case Qt::Key_Enter:
-	case Qt::Key_Plus: // da sonst als Shortcut zum öffnen/schliessen des Items interpretiert
+	case Qt::Key_Plus: // da sonst als Shortcut zum Ã¶ffnen/schliessen des Items interpretiert
 	case Qt::Key_Minus:
-		directSend = true;
+        // necessary since Qt 5 because no longer passed to delegate:
+    case Qt::Key_Delete:
+    case Qt::Key_Backspace:
+        directSend = true;
         break;
     }
 	if( event == QKeySequence::Copy && dynamic_cast<OutlineDeleg*>( itemDelegate() ) )
-		directSend = true; // Copy soll durch Delegate durchgeführt werden
+		directSend = true; // Copy soll durch Delegate durchgefÃ¼hrt werden
 
 	if( directSend )
 	{
@@ -320,15 +324,18 @@ void OutlineTree::keyPressEvent(QKeyEvent *event)
 	}else
 		QTreeView::keyPressEvent( event );
 }
-// Requires Qt >4.4: QT_VERSION >= 0x040400
+
 int OutlineTree::indexRowSizeHint(const QModelIndex &index) const
 {
+    // original version from QTreeView::indexRowSizeHint, extended by a section
+    // this is the LeanQt version
     Q_D(const QTreeView);
     if (!d->isIndexValid(index) || !d->itemDelegate)
         return 0;
 
     int start = -1;
     int end = -1;
+    int indexRow = index.row();
     int count = d->header->count();
     bool emptyHeader = (count == 0);
     QModelIndex parent = index.parent();
@@ -353,7 +360,7 @@ int OutlineTree::indexRowSizeHint(const QModelIndex &index) const
         qSwap(end, start);
 
     int height = -1;
-    QStyleOptionViewItemV4 option = d->viewOptionsV4();
+    QStyleOptionViewItem option = d->viewOptionsV1();
     // ### If we want word wrapping in the items,
     // ### we need to go through all the columns
     // ### and set the width of the column
@@ -365,24 +372,20 @@ int OutlineTree::indexRowSizeHint(const QModelIndex &index) const
         int logicalColumn = emptyHeader ? column : d->header->logicalIndex(column);
         if (d->header->isSectionHidden(logicalColumn))
             continue;
-        QModelIndex idx = d->model->index(index.row(), logicalColumn, parent);
+        QModelIndex idx = d->model->index(indexRow, logicalColumn, parent);
         if (idx.isValid()) {
-			//* Start ROCHUS
-			int width = header()->sectionSize(column);
-			if( !d_block && column == 0 )
-			{
-				// Block braucht es, da d->viewIndex intern seinerseits indexRowSizeHint aufruft
-				//d_block = true;
-				width -= d->indentationForItem( viewIndex(idx) );
-				//d_block = false;
-			}
-			option.rect.setWidth( width );
-			//* End ROCHUS
-#if QT_VERSION >= 0x040600
-            QWidget *editor = d->editorForIndex(idx).editor;
-#else
-            QWidget *editor = d->editorForIndex(idx);
-#endif
+            //* Start ROCHUS
+            int width = header()->sectionSize(column);
+            if( !d_block && column == 0 )
+            {
+                // Block braucht es, da d->viewIndex intern seinerseits indexRowSizeHint aufruft
+                //d_block = true;
+                width -= d->indentationForItem( viewIndex(idx) );
+                //d_block = false;
+            }
+            option.rect.setWidth( width );
+            //* End ROCHUS
+            QWidget *editor = d->editorForIndex(idx).widget.data();
             if (editor && d->persistent.contains(editor)) {
                 height = qMax(height, editor->sizeHint().height());
                 int min = editor->minimumSize().height();
@@ -466,15 +469,15 @@ void OutlineTree::mousePressEvent(QMouseEvent *event)
 	{
 		// Klick im Handle-Bereich
 		if( event->buttons() == Qt::RightButton )
-			return; // Ansonsten wird Kontext immer verändert vor Menü
+			return; // Ansonsten wird Kontext immer verÃ¤ndert vor MenÃ¼
 		closeEdit();
 		setCurrentIndex( i );
         //const int indent = indentation();
 
 		emit identClicked(); // Klick auf Handler-Bereich
 
-		QRect r2( columnViewportPosition( col )	+ itemIndent - d_handleWidth, 
-			d->coordinateForItem(vi), d_handleWidth, d->itemHeight(vi) );
+        QRect r2( columnViewportPosition( col )	+ itemIndent - d_indicatorAreaWidth,
+            d->coordinateForItem(vi), d_indicatorAreaWidth, d->itemHeight(vi) );
 		if( r2.contains( event->pos() ) && event->modifiers() == Qt::NoModifier )
         {
 			// Klick im Expander-Bereich wird von QTreeView gehandhabt
@@ -486,7 +489,7 @@ void OutlineTree::mousePressEvent(QMouseEvent *event)
             d_hitExpander = false;
 			QAbstractItemView::mousePressEvent(event);
         }
-		if( event->modifiers() == Qt::ShiftModifier ) // wir wollen nur Drag/Drop wenn SHIFT gedrückt
+		if( event->modifiers() == Qt::ShiftModifier ) // wir wollen nur Drag/Drop wenn SHIFT gedrÃ¼ckt
             // Beginne Drag-Operation
             d_dragging = true;
 	}
@@ -538,7 +541,7 @@ void OutlineTree::mouseMoveEvent(QMouseEvent *event)
 			QTreeView::mouseMoveEvent( event );
 	}else if( d_clickInEditor )
 	{
-		// Move im Editor wird direkt an diesen geliefert. Ansonsten führt Move zu Änderung des
+		// Move im Editor wird direkt an diesen geliefert. Ansonsten fÃ¼hrt Move zu Ã„nderung des
 		// Current Index und damit Aufhebung der Selektion
 		if( !d->sendDelegateEvent( currentIndex(), event) ) 
 			QTreeView::mouseMoveEvent( event );
@@ -566,7 +569,7 @@ void OutlineTree::setStepSize( quint8 s )
 
 void OutlineTree::setHandleWidth( quint8 w )
 {
-	d_handleWidth = w;
+    d_indicatorAreaWidth = w;
 	updateGeometries();
 }
 

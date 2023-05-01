@@ -1,11 +1,11 @@
 /*
-* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.info>
+* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.ch>
 *
 * This file is part of the CrossLine outliner Oln2 library.
 *
 * The following is the license that applies to this copy of the
 * library. For a license to use the library under conditions
-* other than those described here, please email to me@rochus-keller.info.
+* other than those described here, please email to me@rochus-keller.ch.
 *
 * GNU General Public License Usage
 * This file may be used under the terms of the GNU General Public
@@ -78,14 +78,14 @@ static void readImg( Context& ctx, const Txt::TextHtmlParserNode& n )
 
 	if( n.imageName.startsWith( QLatin1String( "file:" ) ) )
 	{
-		// NOTE n.imageName ist noch kodiert und enth‰lt z.B. %20
+		// NOTE n.imageName ist noch kodiert und enth√§lt z.B. %20
 		QFileInfo path;
-		if( n.imageName.startsWith( QLatin1String( "file:///" ), Qt::CaseInsensitive ) ) // Windows-Spezialit‰t
+		if( n.imageName.startsWith( QLatin1String( "file:///" ), Qt::CaseInsensitive ) ) // Windows-Spezialit√§t
 			// siehe http://en.wikipedia.org/wiki/File_URI_scheme
 			path = n.imageName.mid( 8 );
 		else
 		{
-			const QUrl url = QUrl::fromEncoded( n.imageName.toAscii(), QUrl::TolerantMode );
+            const QUrl url = QUrl::fromEncoded( n.imageName.toUtf8(), QUrl::TolerantMode );
 			path = url.toLocalFile();
 		}
 		if( path.isRelative() )
@@ -180,9 +180,9 @@ static void consumeFollowers( Context& ctx, int n, std::bitset<8>& format, int f
 	{
 		// qDebug() << "consumeFollowers" << startn << n << "?" << quoteNewline( ctx.parser.at(n).text );
 
-		// h‰lt nicht Q_ASSERT( parent == ctx.parser.at(n).parent );
+		// h√§lt nicht Q_ASSERT( parent == ctx.parser.at(n).parent );
 
-		// Setzte Format sofort zur¸ck, sobald Scope des Formats endet
+		// Setzte Format sofort zur√ºck, sobald Scope des Formats endet
 		if( fidx != -1 && parent != ctx.parser.at(n).parent )
 			format.set( fidx, false );
 		const QString str = strip( ctx.parser.at(n).text, ctx.d_skipWs );
@@ -209,7 +209,7 @@ static bool readFrag( Context& ctx, int nodeNr, std::bitset<8>& format, int leve
 		ctx.d_skipWs = false;
 	}else if( n.id == Html_br )
 	{
-		// TODO: setzt <br> das Format zur¸ck?
+		// TODO: setzt <br> das Format zur√ºck?
 		ctx.bml.startFrame( NameTag( "frag" ) );
 		writeFormat( ctx, format );
 		ctx.bml.writeSlot( DataCell().setString( QString( QChar::LineSeparator ) ) ); // Soft Break
@@ -218,7 +218,7 @@ static bool readFrag( Context& ctx, int nodeNr, std::bitset<8>& format, int leve
 	}else if( n.id == Html_a && !n.charFormat.anchorHref().isEmpty() )
 	{
 		ctx.bml.startFrame( NameTag( "anch" ) );
-		ctx.bml.writeSlot( DataCell().setUrl( n.charFormat.anchorHref().toAscii() ), NameTag( "url" ) );
+        ctx.bml.writeSlot( DataCell().setUrl( n.charFormat.anchorHref().toUtf8() ), NameTag( "url" ) );
 		ctx.bml.writeSlot( DataCell().setString( n.text.simplified() ), NameTag( "text" ) );
 		ctx.bml.endFrame();
 		ctx.d_skipWs = false;
@@ -270,7 +270,7 @@ static void readFrags( Context& ctx, const Txt::TextHtmlParserNode& p )
 	std::bitset<8> format;
 	for( int i = 0; i < p.children.size(); i++ )
 	{
-		// Starte Neues frag f¸r je imp und alle ¸brigen
+		// Starte Neues frag f√ºr je imp und alle √ºbrigen
 		// img hat nie Children
 		// a hat selten Children. Falls dann sup oder sub.
 		readFrag( ctx, p.children[i], format, 0 );
@@ -514,7 +514,7 @@ static void handleChild( Context& ctx, const Txt::TextHtmlParserNode& p )
 		break;
 	case Html_ul:
 	case Html_ol:
-		// p.textListNumberPrefix wird nicht bef¸llt
+		// p.textListNumberPrefix wird nicht bef√ºllt
 		if( findAttr( p.attributes, QLatin1String("type") ).isEmpty() )
 		{
 			// wie body
@@ -554,7 +554,7 @@ static void handleChild( Context& ctx, const Txt::TextHtmlParserNode& p )
 				o.aggregateTo( ctx.parent.top() );
 				ctx.parent.push( o );
 				ctx.parent.top().setValue( OutlineItem::AttrIsTitle, DataCell().setBool( true ) );
-				// updateBackRefs hier unnˆtig, da neu erzeugt und nur String
+				// updateBackRefs hier unn√∂tig, da neu erzeugt und nur String
 				ctx.parent.top().setValue( OutlineItem::AttrText, DataCell().setString( str ) );
 			}
 		}
@@ -566,7 +566,7 @@ static void handleChild( Context& ctx, const Txt::TextHtmlParserNode& p )
 	case Html_tr:
 	case Html_td:
 	case Html_th:
-		// nie separat, immer als teil von table als HTML ¸bernommen
+		// nie separat, immer als teil von table als HTML √ºbernommen
 		break;
 	case Html_thead:
 	case Html_tbody:
@@ -589,7 +589,7 @@ static void findName( Context& ctx )
 			const QString str = ctx.parser.at(i).text.simplified().trimmed();
 			if( !str.isEmpty() )
 			{
-				// updateBackRefs hier unnˆtig, da neu erzeugt und nur string
+				// updateBackRefs hier unn√∂tig, da neu erzeugt und nur string
 				ctx.oln.setValue( OutlineItem::AttrText, DataCell().setString( str ) );
 				return;
 			}

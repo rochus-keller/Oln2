@@ -2,13 +2,13 @@
 #define LINKSUPPORT_H
 
 /*
-* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.info>
+* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.ch>
 *
 * This file is part of the CrossLine outliner Oln2 library.
 *
 * The following is the license that applies to this copy of the
 * library. For a license to use the library under conditions
-* other than those described here, please email to me@rochus-keller.info.
+* other than those described here, please email to me@rochus-keller.ch.
 *
 * GNU General Public License Usage
 * This file may be used under the terms of the GNU General Public
@@ -35,10 +35,10 @@ namespace Oln
         bool d_showIcon;
         bool d_showId;
 		bool d_showName; // Text
-		bool d_showContext; // für Home Outline Items, Parent für alle anderen
-        bool d_paraNumber; // Paragraphennummerierung für Outline Items
+		bool d_showContext; // fÃ¼r Home Outline Items, Parent fÃ¼r alle anderen
+        bool d_paraNumber; // Paragraphennummerierung fÃ¼r Outline Items
 		bool d_showSubName; // Text von Subitem if showContext
-        quint8 d_elide; // max. Länge, 0..alles
+        quint8 d_elide; // max. LÃ¤nge, 0..alles
 
         bool readFrom( const QByteArray& );
         QByteArray writeTo();

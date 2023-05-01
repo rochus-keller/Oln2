@@ -1,11 +1,11 @@
 /*
-* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.info>
+* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.ch>
 *
 * This file is part of the CrossLine outliner Oln2 library.
 *
 * The following is the license that applies to this copy of the
 * library. For a license to use the library under conditions
-* other than those described here, please email to me@rochus-keller.info.
+* other than those described here, please email to me@rochus-keller.ch.
 *
 * GNU General Public License Usage
 * This file may be used under the terms of the GNU General Public
@@ -66,12 +66,15 @@ void RefByItemMdl::setObj( const Udb::Obj& o, bool focus )
 
 void RefByItemMdl::refill()
 {
+    beginResetModel();
 	foreach( Slot* s, d_root.d_children )
 		delete s;
 	d_root.d_children.clear();
-	reset();
 	if( d_root.d_obj.isNull() )
+    {
+        endResetModel();
 		return;
+    }
 	QMap<Udb::OID,QMap<QString,Udb::OID> > items;
 	Udb::Idx idx( d_root.d_obj.getTxn(), OutlineItem::AliasIndex );
 	if( !idx.isNull() && idx.seek( d_root.d_obj ) ) do
@@ -110,7 +113,7 @@ void RefByItemMdl::refill()
 			d_cache[ j.value() ] = s2;
 		}
 	}
-	reset();
+    endResetModel();
 }
 
 QModelIndex RefByItemMdl::parent ( const QModelIndex & index ) const
@@ -184,6 +187,8 @@ QVariant RefByItemMdl::data ( const QModelIndex & index, int role ) const
 				return formatTitle( alias );
 		case Qt::DecorationRole:
 			return Oln::OutlineUdbMdl::getPixmap( item.getType() );
+        case Qt::SizeHintRole:
+            return QSize(-1,getTree()->fontMetrics().height() * 1.3);
 		}
 		break;
 	}

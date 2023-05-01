@@ -1,11 +1,11 @@
 /*
-* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.info>
+* Copyright 2008-2017 Rochus Keller <mailto:me@rochus-keller.ch>
 *
 * This file is part of the CrossLine outliner Oln2 library.
 *
 * The following is the license that applies to this copy of the
 * library. For a license to use the library under conditions
-* other than those described here, please email to me@rochus-keller.info.
+* other than those described here, please email to me@rochus-keller.ch.
 *
 * GNU General Public License Usage
 * This file may be used under the terms of the GNU General Public
@@ -64,7 +64,7 @@ OutlineMdl::Slot* OutlineMdl::getSlot( const QModelIndex& index ) const
 	{
 		s = static_cast<Slot*>( index.internalPointer() );
 		Q_ASSERT( s != 0 );
-		// check ob s noch gültig ist. QTreeView reexpand bringt ab und zu ungültigen index
+		// check ob s noch gÃ¼ltig ist. QTreeView reexpand bringt ab und zu ungÃ¼ltigen index
 	}else
 		s = d_root;
 	assert( s != 0 );
@@ -73,7 +73,7 @@ OutlineMdl::Slot* OutlineMdl::getSlot( const QModelIndex& index ) const
 
 QModelIndex OutlineMdl::index( int row, int column, const QModelIndex & parent ) const
 {
-    // Ungültiger QModelIndex repräsentiert d_root, enthält den aber nicht als Pointer
+    // UngÃ¼ltiger QModelIndex reprÃ¤sentiert d_root, enthÃ¤lt den aber nicht als Pointer
     if( parent.isValid() )
 	{
 		Slot* s = static_cast<Slot*>( parent.internalPointer() );
@@ -145,7 +145,7 @@ QVariant OutlineMdl::data ( const QModelIndex & index, int role ) const
     Q_ASSERT( s != 0 );
 	switch( role )
 	{
-		// Spaltenunabhängige Information
+		// SpaltenunabhÃ¤ngige Information
 	case OidRole:
 		return s->getId();
 	case LevelRole:
@@ -191,13 +191,14 @@ Qt::ItemFlags OutlineMdl::flags(const QModelIndex &index) const
 	Qt::ItemFlags f = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
 	if( !isReadOnly() )
 		f |= Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled;
-	// Wir dürfen Editable nicht hier regeln, sondern müssen im Delegate selber fragen. Ansonsten wird der Editor
-	// gar nicht mehr geöffnet, nicht einmal readonly.
+	// Wir dÃ¼rfen Editable nicht hier regeln, sondern mÃ¼ssen im Delegate selber fragen. Ansonsten wird der Editor
+	// gar nicht mehr geÃ¶ffnet, nicht einmal readonly.
 	return f;
 }
 
 void OutlineMdl::clear()
 {
+    beginResetModel();
 	if( d_root )
 	{
 		if( !d_root->d_subs.isEmpty() )
@@ -213,7 +214,7 @@ void OutlineMdl::clear()
 			d_root = 0;
 		}
 	}
-	reset();
+    endResetModel();
 }
 
 void OutlineMdl::recursiveRemove( Slot* s )
@@ -231,7 +232,7 @@ void OutlineMdl::clearCache( const QModelIndex & parent )
     if( s->d_subs.isEmpty() )
         return;
 	beginRemoveRows( parent, 0, s->d_subs.size() - 1 );
-	// Lasse keine Listen mit gelöschten Items rumliegen
+	// Lasse keine Listen mit gelÃ¶schten Items rumliegen
 	QList<Slot*> tmp = s->d_subs;
 	s->d_subs.clear();
 	for( int i = 0; i < tmp.size(); i++ )
