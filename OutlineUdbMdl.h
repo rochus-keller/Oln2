@@ -38,6 +38,7 @@ namespace Oln
 		const Udb::Obj& getOutline() const { return d_outline; }
 		void fetchLevel( const QModelIndex & parent, bool all = false );
 		void fetchAll();
+        void collapseAll();
 		Udb::Obj getItem( const QModelIndex & ) const;
         Udb::Obj getItem( int row, const QModelIndex & parent ) const;
 		// QModelIndex findIndex( quint64 oid ); // lädt nach
@@ -73,7 +74,7 @@ namespace Oln
 		bool dropMimeData ( const QMimeData *, Qt::DropAction, int row, int column, const QModelIndex & );
 	protected slots:
 		void onDbUpdate( Udb::UpdateInfo );
-	private:
+    protected:
 		Udb::Obj d_outline;
 		class UdbSlot : public Slot
 		{
@@ -94,7 +95,8 @@ namespace Oln
 		typedef QList<Udb::Obj> ObjList;
 		int fetch( UdbSlot*, int max = 20, ObjList* = 0 ) const; // max=0..all
 		void create( UdbSlot*, const ObjList& );
-		bool d_blocked;
+        void collapse(UdbSlot*);
+        bool d_blocked;
 	};
 }
 

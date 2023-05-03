@@ -731,9 +731,14 @@ void OutlineUdbCtrl::onCollapseAll()
 
 	QApplication::setOverrideCursor( Qt::WaitCursor );
 	Udb::Database::TxnGuard guard( d_txn->getDb() );
+#if 0
+    // this is very fast on Qt4 and very slow on Qt5; reason is the call of clearCache for each item
 	const int count = d_mdl->rowCount();
-	for( int i = 0; i < count; i++ )
-		_expand( getTree(), d_mdl, d_mdl->index( i, 0 ), false );
+    for( int i = 0; i < count; i++ )
+        _expand( getTree(), d_mdl, d_mdl->index( i, 0 ), false );
+#else
+    d_mdl->collapseAll();
+#endif
 	QApplication::restoreOverrideCursor();
 }
 

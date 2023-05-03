@@ -144,7 +144,18 @@ OutlineUdbMdl::UdbSlot* OutlineUdbMdl::getSlot( const QModelIndex& index ) const
 
 OutlineUdbMdl::UdbSlot* OutlineUdbMdl::findSlot( quint64 id ) const
 {
-	return static_cast<UdbSlot*>( OutlineMdl::findSlot( id ) );
+    return static_cast<UdbSlot*>( OutlineMdl::findSlot( id ) );
+}
+
+void OutlineUdbMdl::collapse(UdbSlot * s)
+{
+    if( !s->getSubs().isEmpty() )
+    {
+        s->d_item.setValue( OutlineItem::AttrIsExpanded, Stream::DataCell().setBool( false ) );
+        const int count = s->getSubs().count();
+        for( int i = 0; i < count; i++ )
+            collapse( static_cast<UdbSlot*>( s->getSubs()[i] ) );
+    }
 }
 
 void OutlineUdbMdl::setOutline( const Udb::Obj& doc )
@@ -277,7 +288,16 @@ void _fetchAll( OutlineUdbMdl* mdl, const QModelIndex & parent )
 
 void OutlineUdbMdl::fetchAll()
 {
-	_fetchAll( this, QModelIndex() );
+    _fetchAll( this, QModelIndex() );
+}
+
+void OutlineUdbMdl::collapseAll()
+{
+    const int count = rowCount();
+    for( int i = 0; i < count; i++ )
+        collapse(getSlot(index( i, 0 )));
+    d_outline.commit();
+    clearCache(QModelIndex());
 }
 
 void OutlineUdbMdl::onDbUpdate( Udb::UpdateInfo info )
@@ -413,7 +433,7 @@ bool OutlineUdbMdl::setData ( const QModelIndex & index, const QVariant & value,
 		const bool exp = value.toBool();
 		s->d_item.setValue( OutlineItem::AttrIsExpanded, Stream::DataCell().setBool( exp ) );
 		d_outline.commit();
-		if( !exp )
+        if( !exp )
 			clearCache( index );
 		return true;
 	}
